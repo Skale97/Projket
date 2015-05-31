@@ -42,20 +42,11 @@ int[] corr2;
 int[] result;
 int sine[][];
 Boolean start = true;
-float best = 0;
 int bestx = 0, besty = 0;
 int ix = 0;
-int estxy[] = {
-  0, 0
-};
-int lastx = 0, lasty = 0;
-float min = 0;
-float locmin = 0;
-int dir = 0;
-int once = 0;
 
 int freq = 1000000;//Hz -------------------------------------
-float maxl = 0.5;//m ---------------------------------------
+float maxl = 3;//m ---------------------------------------
 float maxt = maxl/340.29;
 int ns = int(maxt*freq);
 float ls = maxl/ns;
@@ -64,10 +55,10 @@ float alpha = 1, beta = 0.5, gama = 2, theta = 0.5;
 float xr = 0, yr = 0, xe = 0, ye = 0, xc = 0, yc = 0, cx = 0, cy = 0;
 
 float xest[] = {
-  200, 200, 600
+  200, 200, 300
 };
 float yest[] = {
-  100, 500, 100
+  100, 200, 100
 };
 PrintWriter output;
 
@@ -75,16 +66,7 @@ void setup() {
   size(800, 600);
   ellipseMode(CENTER);
   frameRate(40);
-  println(maxl+", "+maxt+", "+ns+", "+ls);
   output = createWriter("k"+freq/1000+"Hz error.txt"); 
-  estxy[0] = 0;
-  estxy[1] = 0;
-  lastx = 0;
-  lasty = 0;
-  min = 0;
-  locmin = 0;
-  dir = 0;
-  once = 0;
   ix = 0;
   y[3] = 0;
   ns = ns*3;
@@ -92,18 +74,18 @@ void setup() {
   corr1 = new int[ns*2];
   corr2 = new int[ns*2];
   //result = new int[ns*2];
-  /*x[1] = 400;
-   x[2] = 200;
-   x[0] = 600;
-   y[1] = 100;
-   y[2] = 500;
-   y[0] = 500;*/
-  x[0] = 400;
-  x[1] = 450;
-  x[2] = 350;
-  y[0] = 400;
-  y[1] = 500;
+  x[1] = 400;
+  x[2] = 200;
+  x[0] = 600;
+  y[1] = 100;
   y[2] = 500;
+  y[0] = 500;/*
+  x[0] = 400;
+   x[1] = 450;
+   x[2] = 350;
+   y[0] = 400;
+   y[1] = 500;
+   y[2] = 500;*/
 }
 
 
@@ -119,6 +101,15 @@ void draw() {
     ellipse(x[2], y[2], 10, 10);
     fill(200, 100, 30);
     ellipse(x[3], y[3], 5, 5);
+
+    ellipse(xest[0], yest[0], 10, 10);
+    ellipse(xest[1], yest[1], 10, 10);
+    ellipse(xest[2], yest[2], 10, 10);
+  } else {
+
+    ellipse(xest[0], yest[0], 10, 10);
+    ellipse(xest[1], yest[1], 10, 10);
+    ellipse(xest[2], yest[2], 10, 10);
   }
 }
 
@@ -128,16 +119,6 @@ void keyPressed() { //Resetuje sve
     for (int j = 0; j<40; j++) {
       x[3] = i*10+200;
       y[3] = j*10+200;
-      estxy[0] = int(random(200, 600));
-      estxy[1] = int(random(100, 500));
-      once = 0;
-      lastx = 0;
-      lasty = 0;
-      min = 0;
-      locmin = 0;
-      dir = 0;
-      once = 0;
-      best = 0;
       bestx = 0;
       besty = 0;
       start = false;
@@ -285,7 +266,6 @@ float funkcija(float x1, float y1) {
   for (int i = 0; i<3; i++) {
     est[i] = sq(x[i]-x1)+sq(y[i]-y1);
   }
-  min = sqrt(est[0]);
   est[2] = sqrt(est[2])-sqrt(est[0]);
   est[1] = sqrt(est[1])-sqrt(est[0]);
   est[0] = sqrt(est[0])-sqrt(est[0]);
@@ -373,13 +353,17 @@ void refleksija() {
 
 
 void estimate() { 
-  for (int i = 0; i<5; i++) { 
+  for (int i = 0; i<50; i++) { 
     sorta();
     cx = (xest[0]+xest[1])/2;
     cy = (yest[0]+yest[1])/2;
     refleksija();
     bestx = int((xest[0]+xest[1]+xest[2])/3);
     besty = int((yest[0]+yest[1]+yest[2])/3);
+    fill(30*i);
+    ellipse(xest[0], yest[0], 5, 5);
+    ellipse(xest[1], yest[1], 5, 5);
+    ellipse(xest[2], yest[2], 5, 5);
     println(bestx+", "+besty);
   }
 }
