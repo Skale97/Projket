@@ -84,7 +84,6 @@ int estxyz[] = {
 int lastxyz[] = {
   0, 0, 0
 };
-float min = 0;
 float locmin = 0;
 int dir = 0;
 int once = 0;
@@ -92,7 +91,7 @@ int[] corr1;
 int[] corr2;
 int[] result;
 
-int freq = 5000;//Hz
+int freq = 50000;//Hz
 float maxl = 2.5;
 float maxt = maxl/340.29;
 int ns = int(maxt*freq);
@@ -108,7 +107,6 @@ void setup() {
     estxyz[i] = 0;
     lastxyz[i] = 0;
   }
-  min = 0;
   locmin = 0;
   dir = 0;
   once = 0;
@@ -138,7 +136,6 @@ void keyPressed() {
         x[4] = i;
         y[4] = j;
         z[4] = k;
-        min = 0;
         locmin = 0;
         dir = 0;
         once = 0;
@@ -153,12 +150,32 @@ void keyPressed() {
         output.print(dist(x[4], y[4], z[4], bestxyz[0], bestxyz[1], bestxyz[2])+", ");
         println((100*i+10*j+k)+" -- " +dist(x[4], y[4], z[4], bestxyz[0], bestxyz[1], bestxyz[2]));
       }
-      output.println("],");
-      output.print("[");
     }
-      output.println("],");
-      output.print("[");
   }
+}
+
+
+void mousePressed() {
+  for (int i = 0; i<3; i++) {
+    bestxyz[i] = 0;
+    lastxyz[i] = 0;
+    estxyz[i] = int(random(0, 400));
+  }
+  printArray(estxyz);
+  x[4] = 100;
+  y[4] = 100;
+  z[4] = 100;
+  locmin = 0;
+  dir = 0;
+  once = 0;
+  best = 0;
+  mesDist[0] = 0;
+  mesDist[1] = dist(x[4], y[4], z[4], x[1], y[1], z[1]) - dist(x[4], y[4], z[4], x[0], y[0], z[0]);
+  mesDist[2] = dist(x[4], y[4], z[4], x[2], y[2], z[2]) - dist(x[4], y[4], z[4], x[0], y[0], z[0]);
+  mesDist[3] = dist(x[4], y[4], z[4], x[3], y[3], z[3]) - dist(x[4], y[4], z[4], x[0], y[0], z[0]);
+  mesDist = float(distToSine());
+  distRandomPoint();
+  estimate();
 }
 
 
@@ -166,11 +183,10 @@ void distRandomPoint() { //Računa rastojanje za random tačku
   for (int i = 0; i<4; i++) {
     est[i] = dist(estxyz[0], estxyz[1], estxyz[2], x[i], y[i], z[i]);
   }
-  min = est[0];
-  est[3] -= min;
-  est[2] -= min;
-  est[1] -= min;
-  est[0] -= min;
+  est[3] -= est[0];
+  est[2] -= est[0];
+  est[1] -= est[0];
+  est[0] -= est[0];
 }
 
 
@@ -200,7 +216,7 @@ int[] distToSine() {//pretvara vreme u pomeraj sinusa
     if (i-sshift2>=0 && i-sshift2<ns)
       sine[2][i-sshift2] = int(sine[0][i]+random(-3, 3));
     if (i-sshift3>=0 && i-sshift3<ns)
-      sine[3][i-sshift2] = int(sine[0][i]+random(-3, 3));
+      sine[3][i-sshift3] = int(sine[0][i]+random(-3, 3));
   }
   /* for (int j = 0; j<2; j++) {
    for (int i = 0; i<ns; i++) {
@@ -222,7 +238,7 @@ int crosscorr(int[] signal1, int[] signal2) {
   int tmax = 0, pos = 0, max = 0;
 
   for (int i = 0; i<ns*2; i++) {
-    for (int j = 0; j<ns*2; j++) {
+    for (int j = 0; j<corr1.length; j++) {
       corr1[j] = 0;
       corr2[j] = 0;
     }
@@ -236,7 +252,7 @@ int crosscorr(int[] signal1, int[] signal2) {
       }
     }
     tmax = 0;
-    for ( int j = 0; j<ns*2; j++) {
+    for ( int j = 0; j<corr1.length; j++) {
       tmax += corr1[j]*corr2[j];
       result[i] += corr1[j]*corr2[j];
     }
@@ -251,43 +267,40 @@ int crosscorr(int[] signal1, int[] signal2) {
 
 
 void estimate() { //Vrši estimaciju položaja izvora
-  for (int i = 0; i<3; i++) {
-    lastxyz[i] = 0;
-    estxyz[0] = int(random(0, 400));
-  }
   best = 0;
   once = 0;
   distRandomPoint();
-  best = sq(est[1]-mesDist[1]) + sq(est[2]-mesDist[2]) + sq(est[3]-mesDist[3]);
+  best = err();
   for (int j = 0; j<6; j++) {
+    for (int i = 0; i<3; i++) {
+      lastxyz[i] = -1000;
+      estxyz[i] = int(random(0, 400));
+    }
     Boolean gotovo = false;
     while (!gotovo) {
       direction();
-      if (lastxyz[0]!=estxyz[0] || lastxyz[1]!=estxyz[1] || lastxyz[2]!=estxyz[2]) {
+      if (!(lastxyz[0]==estxyz[0] && lastxyz[1]==estxyz[1] && lastxyz[2]==estxyz[2])) {
         if (once == 1) {
-          lastxyz = estxyz;
+          for (int i = 0; i<3; i++)
+            lastxyz[i] = estxyz[i];
         } else if (once == 3) {
           once = 0;
         }
         once++;
-        for (int i = 0; i<dirlen; i++) {
-          if (dir == i) {
-            estxyz[0] += dirMem[i][0];
-            estxyz[1] += dirMem[i][1];
-            estxyz[2] += dirMem[i][2];
-          }
-        }
+        estxyz[0] += dirMem[dir][0];
+        estxyz[1] += dirMem[dir][1];
+        estxyz[2] += dirMem[dir][2];
       } else {
         gotovo=true;
         distRandomPoint();
-        locmin = sq(est[1]-mesDist[1]) + sq(est[2]-mesDist[2]) + sq(est[3]-mesDist[3]);
+        locmin = err();
         if (locmin<best) {
           best = locmin;
-          bestxyz = estxyz;
+          for (int i = 0; i<3; i++)
+            bestxyz[i] = estxyz[i];
+          print("best");
+          printArray(bestxyz);
         }
-        estxyz[0] = int(random(0, 400));
-        estxyz[1] = int(random(0, 400));
-        estxyz[2] = int(random(0, 400));
       }
     }
   }
@@ -296,7 +309,8 @@ void estimate() { //Vrši estimaciju položaja izvora
 void direction() { //Određuje smer kretanja u smeru smanjenja greke
 
   distRandomPoint();
-  locmin = sq(est[1]-mesDist[1]) + sq(est[2]-mesDist[2]) + sq(est[3]-mesDist[3]);
+
+  locmin = err();
 
   for (int i = 0; i<dirlen; i++) {
     estxyz[0] += dirMem[i][0];
@@ -304,13 +318,17 @@ void direction() { //Određuje smer kretanja u smeru smanjenja greke
     estxyz[2] += dirMem[i][2];
 
     distRandomPoint();
-    if (sq(est[1]-mesDist[1]) + sq(est[2]-mesDist[2]) + sq(est[3]-mesDist[3])<locmin) {
-      locmin=sq(est[1]-mesDist[1]) + sq(est[2]-mesDist[2]) + sq(est[3]-mesDist[3]);
+    if (err()<locmin) {
+      locmin=err();
       dir=i;
     }
     estxyz[0] -= dirMem[i][0];
     estxyz[1] -= dirMem[i][1];
     estxyz[2] -= dirMem[i][2];
   }
+}
+
+float err() {
+  return sq(est[1]-mesDist[1]) + sq(est[2]-mesDist[2]) + sq(est[3]-mesDist[3]);
 }
 
