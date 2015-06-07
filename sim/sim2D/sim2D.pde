@@ -54,7 +54,7 @@ float locmin = 0;
 int dir = 0;
 int once = 0;
 
-int freq = 1000000;//Hz -------------------------------------
+int freq = 100000;//Hz -------------------------------------
 float maxl = 0.5;//m ---------------------------------------
 float maxt = maxl/340.29;
 int ns = int(maxt*freq);
@@ -66,7 +66,7 @@ void setup() {
   size(800, 600);
   ellipseMode(CENTER);
   frameRate(40);
-  println(maxl+", "+maxt+", "+ns+", "+ls);
+  //println(maxl+", "+maxt+", "+ns+", "+ls);
   output = createWriter("k"+freq/1000+"Hz error.txt"); 
   estxy[0] = 0;
   estxy[1] = 0;
@@ -183,7 +183,7 @@ void mousePressed() {
     grid();
     distRandomPoint();
     estimate();
-    print(sqrt(sq(x[3]-bestx)+sq(y[3]-besty))/2+",");
+    //print(sqrt(sq(x[3]-bestx)+sq(y[3]-besty))/2+",");
   } else {
     //Dodaje 3 mikrofona
     x[ix] = mouseX;
@@ -239,25 +239,29 @@ int[] distToSine() {//pretvara vreme u pomeraj sinusa
     if (i>(ns/2-ns*0.1) && i<(ns/2+ns*0.1)) {
       float ang = (i-(ns/2-ns*0.1))*PI/(ns*0.2);
       float ang1 = (i-(ns/2-ns*0.1))*PI*20/(ns*0.2);
-      sine[0][i] = int(120*sin(ang)*sin(ang1)+random(-5, 5));
+      sine[0][i] = int(120*sin(ang)*sin(ang1));
     }
   }
   for (int i = 0; i<ns; i++) {
     if (i-sshift1>=0 && i-sshift1<ns)
-      sine[1][i-sshift1] = sine[0][i];
+      sine[1][i-sshift1] = int(sine[0][i]+random(-5,5));
     if (i-sshift2>=0 && i-sshift2<ns)
-      sine[2][i-sshift2] = sine[0][i];
+      sine[2][i-sshift2] = int(sine[0][i]+random(-5,5));
+    sine[0][i] += int(random(-5,5));
   }
-  /* for (int j = 0; j<2; j++) {
-   for (int i = 0; i<ns; i++) {
-   print(sine[j][i]+", ");
-   }
-   println(j+"aAaAaA");
-   }/*
-   println(dS1+", mat, "+dS2);
-   println(crosscorr(sine[0], sine[1])*ls+", cc, "+crosscorr(sine[0], sine[2])*ls);*/
   dist[0] = 0;
   dist[1] = int((crosscorr(sine[0], sine[1]) + 1/3)*ls*200);
+  /*for (int j = 0; j<3; j++) {
+    if(j==2){
+      for (int i = 0; i<result.length; i++)
+      print(result[i]+", ");
+    }
+    else
+    for (int i = 0; i<ns; i++) {
+      print(sine[j][i]+", ");
+    }
+    println(j+"aAaAaA");
+  }*/
   dist[2] = int((crosscorr(sine[0], sine[2]) + 2/3)*ls*200);
   return dist;
 }
@@ -283,7 +287,7 @@ int crosscorr(int[] signal1, int[] signal2) {
     tmax = 0;
     for ( int j = 0; j<ns*2; j++) {
       tmax += corr1[j]*corr2[j];
-      //  result[i] += corr1[j]*corr2[j];
+      //result[i] += corr1[j]*corr2[j];
     }
     if (tmax>max) 
     {

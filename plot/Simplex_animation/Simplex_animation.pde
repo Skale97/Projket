@@ -1,4 +1,4 @@
-String lines[] = loadStrings("C:\\Users\\Marko\\Desktop\\sketch_150529a\\foo.txt");
+String lines[] = loadStrings("E:\\GitHub\\Projke\\plot\\Simplex_animation\\foo.txt");
 float[] x = new float[lines.length/2];
 float[] y = new float[lines.length/2];
 int i = 0;
