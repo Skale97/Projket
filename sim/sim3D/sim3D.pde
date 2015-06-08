@@ -91,7 +91,7 @@ int[] corr1;
 int[] corr2;
 int[] result;
 
-int freq = 10000;//Hz
+int freq = 50000;//Hz
 float maxl = 2.5;
 float maxt = maxl/340.29;
 int ns = int(maxt*freq);
@@ -125,9 +125,9 @@ void draw() {
 
 
 void keyPressed() {
-  for (int i = 0; i<100; i++) {
-    for (int j = 0; j<100; j++) {
-      for (int k = 0; k<100; k++) { 
+  for (int i = 0; i<25; i++) {
+    for (int j = 0; j<25; j++) {
+      for (int k = 0; k<25; k++) { 
         for (int l = 0; l<3; l++) {
           bestxyz[l] = 0;
           lastxyz[l] = 0;
