@@ -10,33 +10,6 @@ float mesDist[] = {
 float est[] = {
   0, 0, 0
 };
-int dirlen = 8;
-int dirMem[][] = {
-  {
-    0, -1
-  }
-  , {
-    1, 0
-  }
-  , {
-    0, 1
-  }
-  , {
-    -1, 0
-  }
-  , {
-    1, -1
-  }
-  , {
-    1, 1
-  }
-  , {
-    -1, 1
-  }
-  , {
-    -1, 1
-  }
-};
 int[] corr1;
 int[] corr2;
 int[] result;
