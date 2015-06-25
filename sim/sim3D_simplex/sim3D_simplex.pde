@@ -27,17 +27,17 @@ float maxt = maxl/340.29;
 int ns = int(maxt*freq);
 float ls = maxl/ns;
 
-float alpha = 1, beta = 0.5, gama = 2, theta = 0.5;
+float alpha = 1, beta = -0.5, gama = 2, delta = 0.5;
 float xr = 0, yr = 0, zr = 0, xe = 0, ye = 0, ze = 0, xc = 0, yc = 0, zc = 0, cx = 0, cy = 0, cz = 0;
 
 float xest[] = {
-  0, 0, 100, 0
+  100, 100, 300, 300
 };
 float yest[] = {
-  0, 100, 0, 0
+  200, 200, 100, 300
 };
 float zest[] = {
-  0, 0, 0, 100
+  100, 300, 200, 200
 };
 PrintWriter output;
 
@@ -87,27 +87,39 @@ void keyPressed() {
 
 
 void mousePressed() {
-  if (ix == 0 && y[3]!=0) {
+  for (int n = 0; n<50; n++) {
+    xest[0] = xest[1] = yest[2] = zest[0] = 100;
+    xest[2] = xest[3] = yest[3] = zest[1] = 300;
+    yest[0] = yest[1] = zest[2] = zest[3] = 200;
+
+    xr = yr = zr = xe = ye = ze = xc = yc = zc = cx = cy = cz = 0;
+    println(n);
+    x[4] = int(random(400));
+    y[4] = int(random(400));
+    z[4] = int(random(400));
+    /*println("x: " + x[4]);
+     println("y: " + y[4]);
+     println("z: " + z[4]);*/
     bestx = 0;
     besty = 0;
     bestz = 0;
     start = false;
+    mesDist[0] = dist(x[0], y[0], z[0], x[4], y[4], z[4]);
+    mesDist[1] = dist(x[1], y[1], z[1], x[4], y[4], z[4])-mesDist[0];
+    mesDist[2] = dist(x[2], y[2], z[2], x[4], y[4], z[4])-mesDist[0];
+    mesDist[3] = dist(x[3], y[3], z[3], x[4], y[4], z[4])-mesDist[0];
+    mesDist[0] = 0;
     mesDist = float(distToSine());
     estimate();
-    print(dist(x[4], y[4], z[4], bestx, besty, bestz)/2+",");
-  } else {
-    //Dodaje 3 mikrofona
-    x[ix] = mouseX;
-    y[ix] = mouseY;
-    ix++;
-    if (ix>4) {
-      //Dodaje izvor zvuka
-      ix = 0;
-      mesDist[0] = dist(x[0], y[0], z[0], x[4], y[4], z[4]);
-      mesDist[1] = dist(x[1], y[1], z[1], x[4], y[4], z[4])-mesDist[0];
-      mesDist[2] = dist(x[2], y[2], z[2], x[4], y[4], z[4])-mesDist[0];
-      mesDist[3] = dist(x[3], y[3], z[3], x[4], y[4], z[4])-mesDist[0];
-      mesDist[0] = 0;
+    /*println("xest: " + bestx);
+     println("yest: " + besty);
+     println("zest: " + bestz);
+     println("Result: "+dist(x[4], y[4], z[4], bestx, besty, bestz)/2);*/
+    if (dist(x[4], y[4], z[4], bestx, besty, bestz)/2>1) {
+      println(n+"-- "+dist(x[4], y[4], z[4], bestx, besty, bestz)/2+"---------------------------------------------");
+      println("x: " + x[4]);
+      println("y: " + y[4]);
+      println("z: " + z[4]);
     }
   }
 }
@@ -219,94 +231,87 @@ void sorta() {
 }
 
 
-void skupljanje() {
-  xest[1] = xest[0] + beta*(xest[1]-xest[0]);
-  yest[1] = yest[0] + beta*(yest[1]-yest[0]);
-  zest[1] = zest[0] + beta*(zest[1]-zest[0]);
-  xest[2] = xest[0] + beta*(xest[2]-xest[0]);
-  yest[2] = yest[0] + beta*(yest[2]-yest[0]);
-  zest[2] = zest[0] + beta*(zest[2]-zest[0]);
-}
-
-
-void prosirenje() {
-  xe = cx + gama*(xr-cx);
-  ye = cy + gama*(yr-cy);
-  ze = cz + gama*(zr-cz);
-
-  if (funkcija(xe, ye, ze)<funkcija(xr, yr, zr)) {
-    xest[2] = xe;
-    yest[2] = ye;
-    zest[2] = ze;
-  } else {
-    xest[2] = xr;
-    yest[2] = yr;
-    zest[2] = zr;
-  }
-}
-
-
-void kontrakcija() {
-  if (funkcija(xest[1], yest[1], zest[1])<=funkcija(xr, yr, zr) && funkcija(xr, yr, zr)<funkcija(xest[2], yest[2], zest[2])) {
-    xc = cx + beta*(xr - cx);
-    yc = cy + beta*(yr - cy);
-    zc = cz + beta*(zr - cz);
-
-    if (funkcija(xc, yc, zc)<=funkcija(xr, yr, zc)) {
-      xest[2] = xc;
-      yest[2] = yc;
-      zest[2] = zc;
-    } else
-      skupljanje();
-  } else if (funkcija(xr, yr, zr)>=funkcija(xest[2], yest[2], zest[2])) {
-    xc = cx + beta*(xest[2] - cx);
-    yc = cy + beta*(yest[2] - cy);
-    zc = cz + beta*(zest[2] - cz);
-
-    if (funkcija(xc, yc, zc)<funkcija(xest[2], yest[2], zest[2])) {
-      xest[2] = xc;
-      yest[2] = yc;
-      zest[2] = zc;
-    } else
-      skupljanje();
-  }
-}
-
-
 void refleksija() {
-  xr = cx + alpha*(cx - xest[2]);
-  yr = cy + alpha*(cy - yest[2]);
-  zr = cz + alpha*(cz - zest[2]);
+  xr = cx + alpha*(cx - xest[3]);
+  yr = cy + alpha*(cy - yest[3]);
+  zr = cz + alpha*(cz - zest[3]);
 
-  if ((funkcija(xr, yr, zr)<funkcija(xest[1], yest[1], zest[1])) && (funkcija(xr, yr, zr)>=funkcija(xest[0], yest[0], zest[0]))) {
-    xest[2] = xr;
-    yest[2] = yr;
-    zest[2] = zr;
-    } else  if (funkcija(xr, yr, zr)<funkcija(xest[0], yest[0], zest[0])) {
+  if ((funkcija(xr, yr, zr)<funkcija(xest[2], yest[2], zest[2])) && (funkcija(xr, yr, zr)>=funkcija(xest[0], yest[0], zest[0]))) {
+    //println("-- Refleksija --");
+    xest[3] = xr;
+    yest[3] = yr;
+    zest[3] = zr;
+  } else  if (funkcija(xr, yr, zr)<funkcija(xest[0], yest[0], zest[0])) {
     prosirenje();
-  } else if (funkcija(xr, yr, zr)>=funkcija(xest[1], yest[1], zest[0])) {
+  } else if (funkcija(xr, yr, zr)>=funkcija(xest[2], yest[2], zest[2])) {
     kontrakcija();
   }
 }
 
 
+void prosirenje() {
+  xe = cx + gama*(cx-xest[3]);
+  ye = cy + gama*(cy-yest[3]);
+  ze = cz + gama*(cz-zest[3]);
+
+  if (funkcija(xe, ye, ze)<funkcija(xr, yr, zr)) {
+    xest[3] = xe;
+    yest[3] = ye;
+    zest[3] = ze;
+  } else {
+    xest[3] = xr;
+    yest[3] = yr;
+    zest[3] = zr;
+  }
+}
+
+
+void kontrakcija() {
+  xc = cx + beta*(cx - xest[3]);
+  yc = cy + beta*(cy - yest[3]);
+  zc = cz + beta*(cz - zest[3]);
+
+  if (funkcija(xc, yc, zc)<funkcija(xest[3], yest[3], zest[3])) {
+    xest[3] = xc;
+    yest[3] = yc;
+    zest[3] = zc;
+  } else
+    skupljanje();
+}
+
+
+void skupljanje() {
+  for (int i = 1; i<4; i++) {
+    //print(i);
+    xest[i] = xest[0] + delta*(xest[i] - xest[0]);
+    yest[i] = yest[0] + delta*(yest[i] - yest[0]);
+    zest[i] = zest[0] + delta*(zest[i] - zest[0]);
+  }
+}
+
+
 void estimate() { 
-  for (int i = 0; i<100; i++) { 
-    print("X - ");
-    printArray(xest);
-    print("Y - ");
-    printArray(yest);
-    print("Z - ");
-    printArray(zest);
-    println("----------");
+  sorta();
+  for (int i = 0; i<50; i++) { 
     sorta();
-    cx = (xest[0]+xest[1])/2;
-    cy = (yest[0]+yest[1])/2;
-    cz = (zest[0]+zest[1])/2;
+    if (i==49) {
+      bestx = int(xest[0]);
+      besty = int(yest[0]);
+      bestz = int(zest[0]);
+      if (xest[0]%10>=5) bestx++;
+      if (yest[0]%10>=5) besty++;
+      if (zest[0]%10>=5) bestz++;
+      if (dist(x[4], y[4], z[4], bestx, besty, bestz)/2>100) {
+        xest[1] = xest[2] = xest[3] = yest[1] = yest[2] = yest[3] = zest[0] = zest[1] = zest[3] = 0;
+        xest[0] = yest[1] = zest[2] = 200;
+        i = 0;
+        sorta();
+      }
+    }
+    cx = (xest[0]+xest[1]+xest[2])/3;
+    cy = (yest[0]+yest[1]+yest[2])/3;
+    cz = (zest[0]+zest[1]+zest[2])/3;
     refleksija();
-    bestx = int((xest[0]+xest[1]+xest[2])/3);
-    besty = int((yest[0]+yest[1]+yest[2])/3);
-    bestz = int((zest[0]+zest[1]+zest[2])/3);
   }
 }
 
