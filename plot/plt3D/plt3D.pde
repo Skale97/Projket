@@ -1,11 +1,11 @@
-int n = 50;
+int n = 50;  // depending on your PC, you can try to make this number smaller and make program run faster in 3D mode
 int d = 3;
 int cr = 1000;
 float max;
 String sdata[][][] = new String[n][n][n];
 float data[][][] = new float[n][n][n];
 int div = 10;
-Boolean start = false;
+Boolean topView = false;
 int depth = 0;
 
 void setup() {
@@ -13,7 +13,7 @@ void setup() {
   background(255);
   colorMode(HSB, cr);
   frameRate(30);
-
+//Učitavanje podataka iz file-a
   String dim1[] = loadStrings("E:\\GitHub\\Projke\\plot\\plt3D\\asdf.txt");
   for (int i = 0; i<n; i++) {
     String dim2[] = split(dim1[i*2], ',');
@@ -22,8 +22,8 @@ void setup() {
       for (int k = 0; k<n; k++) {
         data[i][j][k] = float(dim3[k*2]);
         if ((i == 0 && j == n/2 && (k == 0 || k == n-1)) || (i == n-1 && k == n/2 && (j == 0 || j == n-1)))
-          data[i][j][k] = 0.123; 
-        if (data[i][j][k]>max) max = data[i][j][k];
+          data[i][j][k] = 0.123;  //Prikazivanje pozicije mikrofona, crne tačke
+        if (data[i][j][k]>max) max = data[i][j][k]; //Traženje maksimuma, potrebno za skaliranje boje
       }
     }
   }
@@ -35,7 +35,7 @@ void draw() {
   noStroke();
   background(cr);
 
-  for (int i = 0; i<cr*2/12; i++) {
+  for (int i = 0; i<cr*2/12; i++) { //Color scale line
     noStroke();
     fill(cr*2/3-i*4, cr, cr);
     rect(i*4, 0, 4, 10);
@@ -44,7 +44,7 @@ void draw() {
   text("0 cm", 10, 30);
   text(max+" cm", cr*2/3-70, 30);
 
-  if (!start) {
+  if (!topView) {//3D view, move mouse to rotate, if your PC is slow change n, or use topView mode
     pushMatrix();
     translate(350, 350, 350);
     rotateY((mouseX-350.0)/350.0*PI);
@@ -64,7 +64,7 @@ void draw() {
       popMatrix();
     }
     popMatrix();
-  } else {
+  } else { //top view mode
     for (int i = 0; i<n; i++) {
       for (int j = 0; j<n; j++) {
         fill(cr*2/3-data[i][j][depth]/max*2/3*cr, cr, cr);
@@ -78,26 +78,26 @@ void draw() {
 
 void keyPressed() {
   if (key == 'q') {
-    d++;
+    d++;      //Zoom
   } else if (key == 'a') {
-    d--;
+    d--;      //Zoom
   } else if (key == 'w') {
-    max+=5;
+    max+=5;    //Maximum of color scale
   } else if (key == 's') {
-    max-=5;
+    max-=5;    //Maximum of color scale
   } else if (key == 'e') {
-    div++;
+    div++;    //Color scale
     println(div);
   } else if (key == 'd') {
-    div--;
+    div--;    //Color scale
     println(div);
   }
   if (key == 'k') {
-    start = !start; // Toggle view
+    topView = !topView; // Toggle view
   }
 }
 
-void mouseWheel(MouseEvent e) {
+void mouseWheel(MouseEvent e) {  //Change depth in top view
   depth -= e.getCount();
   if (depth<0) depth = 0;
   else if (depth>=n) depth = n-1;

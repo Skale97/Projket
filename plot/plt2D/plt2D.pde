@@ -19,7 +19,7 @@ void setup() {
 }
 
 
-void draw() {
+void draw() {  //plots signals from 3 top arrays, currently showing cross correlation of signals with different intensities
   background(255);
     for (int i = 0; i<cross.length; i++) {
       if (i!=0)
@@ -36,7 +36,7 @@ void draw() {
 }
 
 
-void mouseWheel(MouseEvent event) {
+void mouseWheel(MouseEvent event) { //Used when comparasion is needed
   c -= event.getCount();
   println(c);
 }

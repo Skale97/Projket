@@ -1,3 +1,5 @@
+//Use mouse for this simulation (check comment associated with mousePressed function
+
 int x[] = { 
   0, 0, 0, 0
 };
@@ -11,7 +13,7 @@ float est[] = {
   0, 0, 0
 };
 int dirlen = 8;
-int dirMem[][] = {
+int dirMem[][] = { //direction Look up table
   {
     0, -1
   }
@@ -54,8 +56,8 @@ float locmin = 0;
 int dir = 0;
 int once = 0;
 
-int freq = 100000;//Hz -------------------------------------
-float maxl = 0.5;//m ---------------------------------------
+int freq = 100000;//Hz ADC freq-------------------------------------
+float maxl = 0.5;//m maximal distance---------------------------------------
 float maxt = maxl/340.29;
 int ns = int(maxt*freq);
 float ls = maxl/ns;
@@ -83,18 +85,12 @@ void setup() {
   corr1 = new int[ns*2];
   corr2 = new int[ns*2];
   //result = new int[ns*2];
-  /*x[1] = 400;
-   x[2] = 200;
-   x[0] = 600;
-   y[1] = 100;
-   y[2] = 500;
-   y[0] = 500;*/
   x[0] = 400;
   x[1] = 450;
   x[2] = 350;
   y[0] = 400;
   y[1] = 500;
-  y[2] = 500;
+  y[2] = 500; // initial microphone positions
 }
 
 
@@ -114,7 +110,7 @@ void draw() {
 }
 
 
-void keyPressed() { //Resetuje sve
+void keyPressed() { //If anz kez is pressed, error for everz spot in 40x40 grid is calculated and exported to .txt file
   for (int i = 0; i<40; i++) {
     for (int j = 0; j<40; j++) {
       x[3] = i*10+200;
@@ -151,7 +147,7 @@ void keyPressed() { //Resetuje sve
 
 
 void mousePressed() {
-  if (ix == 0 && y[3]!=0) { //resetuje sve, postavlja random tačku i vrši estimaciju
+  if (ix == 0 && y[3]!=0) { //First 3 clicks positions 3 microphones, 4th click positions sound source and 5th click activates gradient descent
     lastx = 0;
     lasty = 0;
     min = 0;
@@ -199,7 +195,7 @@ void mousePressed() {
   }
 }
 
-void grid() { //Crta mrežu
+void grid() { //Draws grid
   for (int i = 0; i<8; i++) {
     for ( int j = 0; j<6; j++) {
       noFill();
@@ -213,7 +209,7 @@ void grid() { //Crta mrežu
 }
 
 
-void distRandomPoint() { //Računa rastojanje za random tačku
+void distRandomPoint() { //Calculates difference in distance for each microphone, for random point
   for (int i = 0; i<3; i++) {
     est[i] = sq(estxy[0]-x[i])+sq(estxy[1]-y[i]);
   }
@@ -224,7 +220,7 @@ void distRandomPoint() { //Računa rastojanje za random tačku
 }
 
 
-int[] distToSine() {//pretvara vreme u pomeraj sinusa
+int[] distToSine() {//Conerts distance difference into sine shift
   float dS1 = mesDist[1]/200;
   float dS2 = mesDist[2]/200;
   int sshift1 = int(dS1/ls);
@@ -251,7 +247,7 @@ int[] distToSine() {//pretvara vreme u pomeraj sinusa
   }
   dist[0] = 0;
   dist[1] = int((crosscorr(sine[0], sine[1]) + 1/3)*ls*200);
-  /*for (int j = 0; j<3; j++) {
+  /*for (int j = 0; j<3; j++) { //used for ploting
     if(j==2){
       for (int i = 0; i<result.length; i++)
       print(result[i]+", ");
@@ -267,7 +263,7 @@ int[] distToSine() {//pretvara vreme u pomeraj sinusa
 }
 
 
-int crosscorr(int[] signal1, int[] signal2) {
+int crosscorr(int[] signal1, int[] signal2) { //Does cross correlation of two input signals
   int tmax = 0, pos = 0, max = 0;
 
   for (int i = 0; i<ns*2; i++) {
@@ -299,7 +295,7 @@ int crosscorr(int[] signal1, int[] signal2) {
 }
 
 
-void estimate() { //Vrši estimaciju položaja izvora
+void estimate() { //Estimates sound source location with gradient descent
   noStroke();
   best = 0;
   lastx = 0;
@@ -348,7 +344,7 @@ void estimate() { //Vrši estimaciju položaja izvora
   ellipse(bestx, besty, 7, 7);
 }
 
-void direction() { //Određuje smer kretanja u smeru smanjenja greke
+void direction() { //Finds direction in which error is smallest
 
   distRandomPoint();
   locmin = sq(est[1]-mesDist[1]) + sq(est[2]-mesDist[2]);
