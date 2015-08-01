@@ -110,7 +110,7 @@ void draw() {
 }
 
 
-void keyPressed() { //If anz kez is pressed, error for everz spot in 40x40 grid is calculated and exported to .txt file
+void keyPressed() { //If any key is pressed, error for every spot in 40x40 grid is calculated and exported to .txt file
   for (int i = 0; i<40; i++) {
     for (int j = 0; j<40; j++) {
       x[3] = i*10+200;
@@ -218,82 +218,6 @@ void distRandomPoint() { //Calculates difference in distance for each microphone
   est[1] = sqrt(est[1])-sqrt(est[0]);
   est[0] = sqrt(est[0])-sqrt(est[0]);
 }
-
-
-int[] distToSine() {//Conerts distance difference into sine shift
-  float dS1 = mesDist[1]/200;
-  float dS2 = mesDist[2]/200;
-  int sshift1 = int(dS1/ls);
-  int sshift2 = int(dS2/ls);
-  int[] dist = new int[3];
-  for (int i = 0; i<3; i++) {
-    for (int j = 0; j<ns; j++) {
-      sine[i][j] = 0;
-    }
-  }
-  for (int i = 0; i<ns; i++) {
-    if (i>(ns/2-ns*0.1) && i<(ns/2+ns*0.1)) {
-      float ang = (i-(ns/2-ns*0.1))*PI/(ns*0.2);
-      float ang1 = (i-(ns/2-ns*0.1))*PI*20/(ns*0.2);
-      sine[0][i] = int(120*sin(ang)*sin(ang1));
-    }
-  }
-  for (int i = 0; i<ns; i++) {
-    if (i-sshift1>=0 && i-sshift1<ns)
-      sine[1][i-sshift1] = int(sine[0][i]+random(-5,5));
-    if (i-sshift2>=0 && i-sshift2<ns)
-      sine[2][i-sshift2] = int(sine[0][i]+random(-5,5));
-    sine[0][i] += int(random(-5,5));
-  }
-  dist[0] = 0;
-  dist[1] = int((crosscorr(sine[0], sine[1]) + 1/3)*ls*200);
-  /*for (int j = 0; j<3; j++) { //used for ploting
-    if(j==2){
-      for (int i = 0; i<result.length; i++)
-      print(result[i]+", ");
-    }
-    else
-    for (int i = 0; i<ns; i++) {
-      print(sine[j][i]+", ");
-    }
-    println(j+"aAaAaA");
-  }*/
-  dist[2] = int((crosscorr(sine[0], sine[2]) + 2/3)*ls*200);
-  return dist;
-}
-
-
-int crosscorr(int[] signal1, int[] signal2) { //Does cross correlation of two input signals
-  int tmax = 0, pos = 0, max = 0;
-
-  for (int i = 0; i<ns*2; i++) {
-    for (int j = 0; j<ns*2; j++) {
-      corr1[j] = 0;
-      corr2[j] = 0;
-    }
-    for (int j= 0; j<ns; j++) {
-      if (i<ns) {
-        corr1[i+j] = signal1[j];
-        corr2[ns+j] = signal2[j];
-      } else {
-        corr1[ns+j] = signal1[j];
-        corr2[ns*2-i+j] = signal2[j];
-      }
-    }
-    tmax = 0;
-    for ( int j = 0; j<ns*2; j++) {
-      tmax += corr1[j]*corr2[j];
-      //result[i] += corr1[j]*corr2[j];
-    }
-    if (tmax>max) 
-    {
-      max = tmax;
-      pos = ns-i;
-    }
-  }
-  return pos;
-}
-
 
 void estimate() { //Estimates sound source location with gradient descent
   noStroke();

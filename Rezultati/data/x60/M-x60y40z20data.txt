@@ -1,0 +1,53 @@
+Position [cm]:
+x: 60cm, y: 40cm, z: 20cm
+Results for measurment number 1
+Cross correlation 1 result:
+raw: 532.0
+In cm: 10.88
+Cross correlation 2 result:
+raw: 618.0
+In cm: 40.12
+Cross correlation 3 result:
+raw: 544.0
+In cm: 14.96
+
+Gradient descent results:
+x: 25cm, y: 40cm, z: 36cm
+Error:
+x: 35cm, y: 0cm, z: 16cm
+Distance error: 38.483765cm
+
+Results for measurment number 2
+Cross correlation 1 result:
+raw: 640.0
+In cm: 47.600002
+Cross correlation 2 result:
+raw: 615.0
+In cm: 39.100002
+Cross correlation 3 result:
+raw: 538.0
+In cm: 12.92
+
+Gradient descent results:
+x: 58cm, y: 42cm, z: 23cm
+Error:
+x: 2cm, y: 2cm, z: 3cm
+Distance error: 4.1231055cm
+
+Results for measurment number 3
+Cross correlation 1 result:
+raw: 539.0
+In cm: 13.26
+Cross correlation 2 result:
+raw: 615.0
+In cm: 39.100002
+Cross correlation 3 result:
+raw: 542.0
+In cm: 14.28
+
+Gradient descent results:
+x: 28cm, y: 40cm, z: 35cm
+Error:
+x: 32cm, y: 0cm, z: 15cm
+Distance error: 35.341194cm
+
