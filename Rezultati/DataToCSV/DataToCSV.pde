@@ -1,37 +1,44 @@
 BufferedReader reader;
-PrintWriter output;
+PrintWriter outputcc;
+PrintWriter outputgd;
 String line;
-int n = 0;
 
 void setup() {
   reader = createReader("E:\\GitHub\\Projket\\Rezultati\\M-x20y20z20data.txt");
-  output = createWriter("check.txt"); 
-  output.print("20,20,20");
+  outputcc = createWriter("checkcc.txt"); 
+  outputgd = createWriter("checkgd.txt");
 }
 
 void draw() {
-  if (n<=52) {
-    try {
-      line = reader.readLine();
+  for (int x = 20; x<=80; x+=10) {
+    for (int y = 20; y<=80; y+=10) {
+      for (int z = 20; z<=80; z+=10) {
+        reader = createReader("E:\\GitHub\\Projket\\Rezultati\\data\\x"+x+"\\M-x"+x+"y"+y+"z"+z+"data.txt");
+        outputcc.print(x+","+y+","+z+",");
+        outputgd.print(x+","+y+","+z+",");
+        for (int n = 0; n<=52; n++) {
+          try {
+            line = reader.readLine();
+            if (n==5 || n==8 || n==11 || n==22 || n==25 || n==28 || n==39 || n==42 || n==45) {
+              println(x+", "+y+", "+z);
+              outputcc.print(split(line, ' ')[2]+",");
+            } else if (n==14 || n==31 || n==48) {
+              outputgd.print(split(split(line, ' ')[1], 'c')[0]+",");
+              outputgd.print(split(split(line, ' ')[3], 'c')[0]+",");
+              outputgd.print(split(split(line, ' ')[5], 'c')[0]+",");
+            }
+          }
+          catch(IOException e) {
+          }
+        }
+        outputcc.println();
+        outputgd.println();
+      }
     }
-    catch(IOException e) {
-    }
-    if (n==5 || n==8 || n==11 || n==22 || n==25 || n==28 || n==39 || n==42 || n==45) {
-      println(split(line, ' ')[2]+"CC");
-      output.print(split(line, ' ')[2]);
-    } else if (n==14 || n==31 || n==48) {
-      println("0: "+split(split(line, ' ')[1], 'c')[0]);
-      println("1: "+split(split(line, ' ')[3], 'c')[0]);
-      println("2: "+split(split(line, ' ')[5], 'c')[0]);
-
-      output.print(split(split(line, ' ')[1], 'c')[0]);
-      output.print(split(split(line, ' ')[3], 'c')[0]);
-      output.print(split(split(line, ' ')[5], 'c')[0]);
-    }
-    n++;
-  } else 
-  {
-    output.flush();
-    output.close();
   }
+  outputcc.flush();
+  outputcc.close();
+  outputgd.flush();
+  outputgd.close();
+  exit();
 } 
