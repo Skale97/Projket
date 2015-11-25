@@ -14,7 +14,7 @@ void setup() {
   colorMode(HSB, cr);
   frameRate(30);
 //Učitavanje podataka iz file-a
-  String dim1[] = loadStrings("E:\\GitHub\\Projke\\plot\\plt3D\\asdf.txt");
+  String dim1[] = loadStrings("E:\\GitHub\\Projket\\plot\\plt3D\\asdf.txt");
   for (int i = 0; i<n; i++) {
     String dim2[] = split(dim1[i*2], ',');
     for (int j = 0; j<n; j++) {
