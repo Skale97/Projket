@@ -1,0 +1,1 @@
+U ovom folderu se nalaze simulacije Gradient descenta i Nelder Meada, 2D i 3D simulacije, folderi sa sufiksom simplex su simulacije Nelder Meada, signal sim je simulacija kroskorelacije
